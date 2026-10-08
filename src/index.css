@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-forest text-paper hover:bg-forest-light;
+  }
+  .btn-accent {
+    @apply btn bg-clay text-white hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply btn border border-ink/15 bg-white/60 text-ink hover:border-ink/40;
+  }
+  .card {
+    @apply rounded-2xl border border-ink/10 bg-white shadow-sm;
+  }
+  .label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-ink/60;
+  }
+  .input {
+    @apply w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/20;
+  }
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.2em] text-clay;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+}
+
+.kraft-texture {
+  background-color: #c9a57b;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px), radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 6px 6px, 9px 9px;
+  background-position: 0 0, 3px 4px;
+}
+
+@media print {
+  nav,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+}
