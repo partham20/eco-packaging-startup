@@ -1,8 +1,8 @@
-# Petti (பெட்டி): custom eco-friendly packaging, from one piece
+# Petti: prototyping & low-volume custom packaging, no minimum order
 
-A working prototype website for an MBA entrepreneurship project. Petti makes rigid boxes, corrugated cartons, mono cartons, paper cups and paper bags for D2C brands and small startups, with **no minimum order quantity** and **a free sample with every item**.
+A working prototype website for an MBA entrepreneurship project. Petti makes rigid boxes, corrugated boxes, mono cartons, paper cups and paper bags for **startups and emerging brands launching pilot runs**, with **no minimum order** and **a physical sample before you commit**.
 
-> Hero line: **"Everyone else starts at a thousand. We start at one."**
+> Positioning: **Prototype it. Pilot it. No minimum order.**
 
 ## Run it
 
@@ -19,39 +19,65 @@ Production build: `npm run build`, then `npm run preview`. The `dist/` folder ca
 
 | Page | Route | What it shows |
 |---|---|---|
-| Landing page | `/` | Hero tagline, MOQ comparison, the "bedroom warehouse" problem, product lines, how it works, eco promise, lead magnets, FAQ |
-| Design studio | `/studio/:product` | **Step 1:** flat dieline template for each product line. Upload a full-wrap background and/or per-panel artwork (logo on the front, lid, etc.), then drag, resize, pick a board colour, size, material and finish. **Step 2:** live 3D model you can rotate, zoom and pan (lift the lid, open/close carton flaps). **Step 3:** quantity from 1, live tiered pricing, free-sample toggle, add to cart |
-| Cart / checkout | `/cart`, `/checkout` | Quantity edits, price-break hints, free samples, GST, shipping, mock payment |
+| Landing page | `/` | Hero with the **instant prototype quote** lead magnet, prototype → pilot → launch price ladder, **"Pick a Format, Make It Yours"** (5 formats, 21 opening styles), how it works, quote/sample tracking, the free Prototype Kit, FAQ |
+| Design studio | `/studio/:product/:style` | Pick the opening style, type custom length / width / depth, upload artwork, switch between the **flat 2D dieline** and the **interactive 3D model**, then **request a quote & physical sample** |
+| Cart / checkout | `/cart`, `/checkout` | For customers who want to order straight away: quantity edits, price-break hints, free samples, GST, shipping, mock payment |
 | Order confirmation | `/order/:id` | Order ID, ETA, next steps |
-| Tracking | `/track` | Lookup by order ID + email/phone. Separate timelines for the **production** stages (placed → artwork approved → printing → die-cutting → QC → packed) and **delivery** (shipped → hub scans → out for delivery → delivered), plus a separate track for the free sample |
-| Get a quote | `/quote` | Lead-capture form: name, designation, company, address, email, phone, products, monthly volume, message |
-| Starter kit | `/starter-kit` | Gated lead magnet with blank SVG dielines, a box-size cheat sheet, a material guide and an interactive MOQ-vs-monthly budget planner |
-| Ops desk | `/admin` | Passcode `petti2026`. Advance order statuses, add hub scans, view and export leads to CSV |
-| Products, Our story | `/products`, `/about` | Spec comparison, brand story, business model at a glance |
+| Tracking | `/track` | Look up a **quote/sample request** (`QR-…`) or an **order** (`PT-…`) with the email or phone used. Requests show review → quotation → sample dispatched → sample delivered; orders show production and delivery timelines |
+| General enquiry | `/quote` | Lead-capture form for people who are not ready to configure a pack |
+| Prototype Kit | `/starter-kit` | Gated lead magnet (optionally posts a physical sample pack): blank SVG dielines for every style, a size cheat sheet, a material guide and a pilot cost planner |
+| Ops desk | `/admin` | Passcode `petti2026`. **Quotes & samples** (review specs and files, confirm a quotation, dispatch the sample), orders (advance statuses, hub scans) and leads (CSV export) |
+| Products, Our story | `/products`, `/about` | Spec comparison with every opening style, brand story, business model at a glance |
 
-## Demo script (5 minutes)
+## Opening styles
 
-1. **Home:** read the hero line and point at the MOQ comparison card (1,000 pieces and ₹93,000 upfront vs 1 piece for ₹207).
-2. **Design studio → Rigid Box → "Try it"** with the company's brand name. Show the flat dieline, drag the logo around, then click **Convert to 3D** and rotate the box. Turn on **Lift the lid**.
-3. Switch to **Paper Cup** and show how the curved fan template wraps around the 3D cup.
-4. **Step 3:** click through the quantity presets to show the price falling, keep **Free sample** ticked, add to cart, check out (any valid details), and pay.
-5. **Track this order**, then open `/admin` (passcode `petti2026`), click **Mark: Artwork approved** a few times, add a hub scan, and refresh the customer tracking page.
-6. Show **Get a quote** and the **Starter Kit** (lead magnets), then the **Leads** tab in the ops desk with CSV export.
+Every style has its own flat dieline and its own 3D model, and most have a slider that moves the opening part.
 
-Demo tracking IDs: `PT-DEMO01` (printing, sample already delivered) and `PT-DEMO02` (in transit to Hyderabad).
+| Format | Styles |
+|---|---|
+| Rigid Box | Top & bottom (lid & base) · Drawer / sleeve · Collapsible / foldable · Magnetic closure · Other / custom opening (describe it) |
+| Corrugated Box | Shipping carton (RSC) · Mailer box (tuck-top) · Lid & base (telescopic) |
+| Mono Carton | Tuck-end · Hang-tab · Open-ended sleeve · Drawer (tray & sleeve) |
+| Paper Cup | Hot (open top) · Hot with sip lid · Cold with dome lid & straw · Ripple wall |
+| Paper Bag | Twisted handle · Flat handle · Rope handle · Die-cut handle · Open-mouth (no handle) |
+
+## Quote & sample workflow
+
+1. The customer configures size, style and artwork in the studio and checks it in 2D and 3D.
+2. **Request quote & free sample** collects their contact details, order volume, delivery address for the sample and any extra design files. A print-ready render of the design and a snapshot are attached automatically.
+3. The request lands in **Ops desk → Quotes & samples**. The team reviews the specs and files, **confirms a quotation** (price, quantity, lead time, validity) and **dispatches the physical sample** (courier and tracking number), then marks it delivered.
+4. The customer follows every step at `/track` with the request ID (`QR-…`).
+
+Demo tracking IDs: `QR-DEMO01` (quote sent, sample on its way), `QR-DEMO02` (just received), `PT-DEMO01` (order being printed, sample already delivered), `PT-DEMO02` (order in transit to Hyderabad).
 
 ## Tech notes
 
 - Vite + React 18 + TypeScript + Tailwind CSS + react-router.
 - 3D: three.js via @react-three/fiber and drei. The flat dieline is rendered to a canvas and sliced into one texture per face, so what you see in 2D is exactly what wraps the 3D model. The cup's curved fan is mathematically unwarped onto the cone.
-- No backend: cart, orders and leads live in the browser's `localStorage` (zustand persist). Uploaded images are downscaled to 1024 px. To go live, swap the stores for an API (e.g. Supabase or Firebase), add real auth to `/admin`, and connect a payment gateway (Razorpay) and courier API.
-- Prices are illustrative and come from `src/lib/pricing.ts` and `src/data/products.ts`. **Confirm the GST rate for each product's HSN code**: it is a single placeholder constant (`GST_RATE`).
+- No backend: cart, orders, leads and quote requests live in the browser's `localStorage` (zustand persist). Uploaded images are downscaled to 1024 px (extra request files to 1600 px). Request files are stored as data URLs, so if browser storage fills up the files of older requests are dropped first. To go live, swap the stores for an API (e.g. Supabase or Firebase) with file storage, add real auth to `/admin`, and connect a payment gateway (Razorpay) and courier API.
+- Prices are illustrative and come from `src/lib/pricing.ts` and `src/data/products.ts` (each style carries a `priceFactor`). **Confirm the GST rate for each product's HSN code**: it is a single placeholder constant (`GST_RATE`).
 
 ## Key files
 
-- `src/data/products.ts`: product lines, materials, finishes, size ranges, price parameters
-- `src/data/dielines.ts`: flat template geometry for each product (mm)
+- `src/data/products.ts`: product lines, **opening styles**, materials, finishes, size ranges, price parameters
+- `src/data/dielines.ts`: flat template geometry for each product and style (mm)
 - `src/lib/render.ts`: draws the dieline + artwork; unwarps the cup wrap
-- `src/components/studio/Preview3D.tsx`: 3D models
+- `src/components/studio/Preview3D.tsx`: 3D models, one per style
+- `src/components/studio/QuoteModal.tsx`: quote & sample request form
+- `src/store/requestStore.ts`: quote request state machine; `src/components/admin/RequestsPanel.tsx`: the team's side
 - `src/store/orderStore.ts` and `src/data/status.ts`: order tracking state machine
 - `src/pages/*`: one file per page
+
+### Adding an opening style
+
+1. Add a `ProductStyle` to the product in `products.ts` (name, `priceFactor`, optional default `dims`, and the `controls` sliders).
+2. Return its panels from `buildDieline` in `dielines.ts` (give panels a `target` mesh and face so the print maps onto the 3D model, and list the `hero` panels that get the sample logo).
+3. Add a model for it in `Preview3D.tsx` and route to it in `ProductModel`. Add it to `extent()` so the camera frames it.
+
+## Deploying to a static host
+
+The app is a plain static site. For a host without a single-page-app fallback (GitHub Pages), build with hash routing and the sub-path it is served from:
+
+```bash
+VITE_HASH_ROUTER=1 npx vite build --base=/my-repo/pilot/
+```

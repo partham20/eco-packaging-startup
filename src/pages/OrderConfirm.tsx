@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useOrders, etaFor } from '../store/orderStore';
-import { getProduct, dimsLabel } from '../data/products';
+import { getProduct, getStyle, dimsLabel } from '../data/products';
 import { inr } from '../lib/pricing';
 
 export default function OrderConfirm() {
@@ -48,7 +48,7 @@ export default function OrderConfirm() {
               <li key={i.id} className="flex items-center gap-3 py-2">
                 {i.thumbnail && <img src={i.thumbnail} alt="" className="h-12 w-12 rounded-lg object-cover" />}
                 <span className="flex-1">
-                  {p.name} · {dimsLabel(p, i.dims)} × {i.qty.toLocaleString('en-IN')}
+                  {p.name} · {getStyle(p, i.styleId).name} · {dimsLabel(p, i.dims)} × {i.qty.toLocaleString('en-IN')}
                   {i.freeSample && <span className="pill ml-2 bg-forest/10 text-forest">+ free sample</span>}
                 </span>
                 <span>{inr(i.lineTotal)}</span>

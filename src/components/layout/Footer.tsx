@@ -9,7 +9,7 @@ export default function Footer() {
         <div>
           <Logo light />
           <p className="mt-4 text-sm leading-relaxed">
-            Custom eco-friendly packaging for D2C brands and young startups. No minimum order — start at one.
+            Prototyping and low-volume custom packaging for startups and emerging brands. No minimum order.
           </p>
         </div>
         <div>
@@ -27,9 +27,10 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-semibold text-paper">For founders</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/quote" className="hover:text-kraft">Get a quote</Link></li>
-            <li><Link to="/starter-kit" className="hover:text-kraft">Free packaging starter kit</Link></li>
-            <li><Link to="/track" className="hover:text-kraft">Track an order</Link></li>
+            <li><Link to="/studio" className="hover:text-kraft">Request a quote & sample</Link></li>
+            <li><Link to="/quote" className="hover:text-kraft">General enquiry</Link></li>
+            <li><Link to="/starter-kit" className="hover:text-kraft">Free prototype kit</Link></li>
+            <li><Link to="/track" className="hover:text-kraft">Track a request or order</Link></li>
             <li><Link to="/about" className="hover:text-kraft">Our story</Link></li>
           </ul>
         </div>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../store/cartStore';
-import { getProduct, dimsLabel } from '../data/products';
+import { getProduct, getStyle, dimsLabel } from '../data/products';
 import { FREE_SHIPPING_ABOVE, GST_RATE, TIERS, cartTotals, inr, lineTotal, tierFor, unitPrice } from '../lib/pricing';
 import ProductIcon from '../components/ProductIcon';
 
@@ -34,10 +34,11 @@ export default function Cart() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="font-sans text-lg font-semibold">{p.name}</h2>
+                      <h2 className="font-sans text-lg font-semibold">{p.name} <span className="text-sm font-normal text-ink/55">· {getStyle(p, i.styleId).name}</span></h2>
                       <p className="text-sm text-ink/60">
                         {dimsLabel(p, i.dims)} · {p.materials.find((m) => m.id === i.materialId)?.label} · {p.finishes.find((f) => f.id === i.finishId)?.label}
                       </p>
+                      {i.styleNote && <p className="text-xs italic text-ink/55">Custom opening: “{i.styleNote}”</p>}
                       {!i.hasArtwork && <p className="text-xs text-clay">Unprinted (no artwork uploaded)</p>}
                     </div>
                     <button onClick={() => remove(i.id)} className="text-sm text-ink/50 hover:text-red-700" aria-label={`Remove ${p.name}`}>Remove</button>

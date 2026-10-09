@@ -6,7 +6,7 @@ const links = [
   { to: '/products', label: 'Products' },
   { to: '/studio', label: 'Design studio' },
   { to: '/track', label: 'Track order' },
-  { to: '/starter-kit', label: 'Free starter kit' },
+  { to: '/starter-kit', label: 'Free prototype kit' },
   { to: '/about', label: 'Our story' },
 ];
 
@@ -18,9 +18,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <path d="M8 12l8-4 8 4v9l-8 4-8-4z" fill="#C9A57B" />
         <path d="M8 12l8 4 8-4M16 16v9" stroke={light ? '#F7F3EC' : '#1F3D2B'} strokeWidth="1.5" fill="none" />
       </svg>
-      <span className={`font-display text-2xl font-bold ${light ? 'text-paper' : 'text-forest'}`}>
-        Petti<span className="ml-1 align-top text-xs font-sans font-medium opacity-60">பெட்டி</span>
-      </span>
+      <span className={`font-display text-2xl font-bold ${light ? 'text-paper' : 'text-forest'}`}>Petti</span>
     </Link>
   );
 }

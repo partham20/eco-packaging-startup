@@ -147,6 +147,16 @@ function drawOverlay(g: CanvasRenderingContext2D, dl: Dieline, k: number, select
       g.fillText(p.label, lx + pad, ly + pad * 0.8);
     }
   }
+  for (const m of dl.marks ?? []) {
+    g.setLineDash([]);
+    g.lineWidth = Math.max(1.5, k * 0.6);
+    g.strokeStyle = '#C2552E';
+    g.fillStyle = 'rgba(255,255,255,0.7)';
+    g.beginPath();
+    g.ellipse(m.cx * k, m.cy * k, m.rx * k, m.ry * k, 0, 0, Math.PI * 2);
+    g.fill();
+    g.stroke();
+  }
   g.restore();
 }
 

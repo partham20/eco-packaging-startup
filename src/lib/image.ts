@@ -88,7 +88,7 @@ export function sampleLogo(brand: string, color = '#F7F3EC'): string {
   g.fillText(brand, 400, 250);
   g.font = '500 30px Inter, sans-serif';
   g.globalAlpha = 0.8;
-  g.fillText('MADE WITH CARE · PLASTIC-FREE PACK', 400, 345);
+  g.fillText('YOUR BRAND · YOUR PACK', 400, 345);
   return c.toDataURL('image/png');
 }
 
@@ -114,4 +114,29 @@ export function shrinkCanvas(src: HTMLCanvasElement, max = 320): string {
   g.fillRect(0, 0, c.width, c.height);
   g.drawImage(src, 0, 0, c.width, c.height);
   return c.toDataURL('image/jpeg', 0.8);
+}
+
+/** Flatten a (possibly transparent) canvas onto white and encode as a JPEG data URL. */
+export function canvasToJpeg(src: HTMLCanvasElement, quality = 0.86, max = 1600): string {
+  const k = Math.min(1, max / Math.max(src.width, src.height));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(src.width * k));
+  c.height = Math.max(1, Math.round(src.height * k));
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(src, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', quality);
+}
+
+/** Read any file as a data URL (images are downscaled; PDFs/AI/other files are kept as-is). */
+export function fileToAttachment(file: File, maxBytes = 1_500_000): Promise<string> {
+  if (file.type.startsWith('image/') && file.type !== 'image/svg+xml') return fileToDataUrl(file, 1600);
+  if (file.size > maxBytes) return Promise.reject(new Error(`${file.name} is over ${(maxBytes / 1e6).toFixed(1)} MB. Please attach a smaller file or send it by email.`));
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+    r.readAsDataURL(file);
+  });
 }

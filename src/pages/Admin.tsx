@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { nextStatus, useOrders } from '../store/orderStore';
 import { useLeads } from '../store/leadStore';
+import { useRequests } from '../store/requestStore';
+import RequestsPanel from '../components/admin/RequestsPanel';
 import { STATUS_META, HUBS } from '../data/status';
-import { getProduct } from '../data/products';
+import { getProduct, getStyle } from '../data/products';
 import { inr } from '../lib/pricing';
 import { downloadBlob } from '../lib/image';
 import { seedDemoData } from '../data/seed';
@@ -26,9 +28,10 @@ export default function Admin() {
   const [authed, setAuthed] = useState(readAuth);
   const [code, setCode] = useState('');
   const [bad, setBad] = useState(false);
-  const [tab, setTab] = useState<'orders' | 'leads'>('orders');
+  const [tab, setTab] = useState<'requests' | 'orders' | 'leads'>('requests');
   const orders = useOrders((s) => s.orders);
   const leads = useLeads((s) => s.leads);
+  const requests = useRequests((s) => s.requests);
 
   if (!authed)
     return (
@@ -70,7 +73,9 @@ export default function Admin() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Stat k="Open requests" v={requests.filter((r) => r.status !== 'closed').length} />
+        <Stat k="Samples out" v={requests.filter((r) => r.status === 'sample_sent').length} />
         <Stat k="Orders" v={orders.length} />
         <Stat k="In production" v={orders.filter((o) => STATUS_META[o.shipments.find((s) => s.kind === 'main')!.status].phase === 'production').length} />
         <Stat k="Leads" v={leads.length} />
@@ -78,14 +83,16 @@ export default function Admin() {
       </div>
 
       <div className="mt-8 flex gap-2 border-b border-ink/10">
-        {(['orders', 'leads'] as const).map((t) => (
+        {(['requests', 'orders', 'leads'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold capitalize ${tab === t ? 'border-clay text-ink' : 'border-transparent text-ink/50'}`}>
-            {t} ({t === 'orders' ? orders.length : leads.length})
+            {t === 'requests' ? 'Quotes & samples' : t} ({t === 'requests' ? requests.length : t === 'orders' ? orders.length : leads.length})
           </button>
         ))}
       </div>
 
-      {tab === 'orders' ? (
+      {tab === 'requests' ? (
+        <RequestsPanel />
+      ) : tab === 'orders' ? (
         <div className="mt-6 space-y-4">
           {orders.length === 0 && <p className="text-ink/60">No orders yet.</p>}
           {orders.map((o) => <OrderCard key={o.id} o={o} />)}
@@ -121,7 +128,7 @@ function OrderCard({ o }: { o: Order }) {
         </div>
       </div>
       <p className="mt-2 text-sm text-ink/70">
-        {o.items.map((i) => `${getProduct(i.productId).name} × ${i.qty}${i.freeSample ? ' (+sample)' : ''}`).join(' · ')}
+        {o.items.map((i) => `${getProduct(i.productId).name} (${getStyle(getProduct(i.productId), i.styleId).name}) × ${i.qty}${i.freeSample ? ' (+sample)' : ''}`).join(' · ')}
       </p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {o.shipments.map((s) => <ShipmentControls key={s.kind} orderId={o.id} s={s} />)}
@@ -198,7 +205,7 @@ function LeadsTable({ leads }: { leads: Lead[] }) {
                 <td className="p-3 text-xs"><a className="text-forest underline" href={`mailto:${l.email}`}>{l.email}</a><br />{l.phone && <a href={`tel:${l.phone}`}>{l.phone}</a>}</td>
                 <td className="p-3 text-xs">{l.productInterest.map((p) => getProduct(p).name).join(', ') || '—'}{l.message && <p className="mt-1 italic text-ink/50">“{l.message}”</p>}</td>
                 <td className="p-3 text-xs">{l.monthlyQty || '—'}</td>
-                <td className="p-3"><span className={`pill ${l.source === 'quote' ? 'bg-clay/10 text-clay' : 'bg-forest/10 text-forest'}`}>{l.source === 'quote' ? 'Quote' : 'Starter kit'}</span></td>
+                <td className="p-3"><span className={`pill ${l.source === 'starter-kit' ? 'bg-forest/10 text-forest' : l.source === 'instant-quote' ? 'bg-sky-100 text-sky-800' : 'bg-clay/10 text-clay'}`}>{l.source === 'starter-kit' ? 'Prototype kit' : l.source === 'instant-quote' ? 'Instant quote' : 'Enquiry'}</span></td>
                 <td className="p-3"><button className="text-xs text-ink/40 hover:text-red-700" onClick={() => confirm(`Delete lead from ${l.name}?`) && remove(l.id)}>Delete</button></td>
               </tr>
             ))}

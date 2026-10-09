@@ -6,7 +6,7 @@ import { Field, validEmail, validPhone } from '../components/forms';
 import ProductIcon from '../components/ProductIcon';
 import type { Lead, ProductId } from '../types';
 
-const QTY_BANDS = ['Just starting', 'Under 100', '100–500', '500–1,000', '1,000–5,000', '5,000+'];
+const QTY_BANDS = ['Just a prototype', 'Pilot launch, under 100', '100–500', '500–1,000', '1,000–5,000', '5,000+'];
 
 type Form = Omit<Lead, 'id' | 'createdAt' | 'source'>;
 const empty: Form = { name: '', designation: '', company: '', address: '', email: '', phone: '', productInterest: [], monthlyQty: '', message: '' };
@@ -55,16 +55,20 @@ export default function Quote() {
   return (
     <div className="container-x grid gap-10 py-12 lg:grid-cols-[1fr_1.4fr]">
       <div>
-        <p className="eyebrow">Get a quote</p>
-        <h1 className="mt-3 text-4xl font-semibold leading-tight text-forest sm:text-5xl">Tell us what you ship. We'll do the maths.</h1>
+        <p className="eyebrow">General enquiry</p>
+        <h1 className="mt-3 text-4xl font-semibold leading-tight text-forest sm:text-5xl">Tell us what you're launching. We'll do the maths.</h1>
         <p className="mt-4 text-ink/70">
-          Whether it's 50 boxes for a launch or 5,000 cups a month, we'll suggest the right format and material, and send a price
+          Whether it's a single prototype, 50 boxes for a pilot or 5,000 cups a month, we'll suggest the right format and material, and send a price
           you can plan around.
+        </p>
+        <p className="mt-4 rounded-xl bg-forest/10 p-4 text-sm text-forest">
+          Already know the pack you want? <Link to="/studio" className="font-semibold underline">Configure it in the studio</Link> and use
+          <b> Request quote & sample</b>. Your size, style and artwork travel with the request and we post you a physical sample.
         </p>
         <ul className="mt-8 space-y-4 text-sm">
           {[
             ['A call back within 24 hours', 'From a person who knows board grades, not a chatbot.'],
-            ['A free sample in every quote', 'Hold it, test it, and show it to your co-founder.'],
+            ['A physical sample on request', 'Hold it, test it, and show it to your co-founder.'],
             ['Your price drops as you grow', 'Prices step down at 10, 50, 100, 250, 500 and 1,000 pieces.'],
           ].map(([t, d]) => (
             <li key={t} className="flex gap-3">
@@ -102,13 +106,13 @@ export default function Quote() {
           </div>
           {errors.productInterest && <span className="mt-1 block text-xs text-red-700">{errors.productInterest}</span>}
         </div>
-        <Field label="Estimated monthly quantity" className="sm:col-span-2">
+        <Field label="Estimated quantity (pilot or monthly)" className="sm:col-span-2">
           <select className="input" value={f.monthlyQty} onChange={set('monthlyQty')}>
             <option value="">Select…</option>
             {QTY_BANDS.map((q) => <option key={q}>{q}</option>)}
           </select>
         </Field>
-        <Field label="Anything else? (sizes, product, deadline)" className="sm:col-span-2">
+        <Field label="Anything else? (sizes, product, opening style, deadline)" className="sm:col-span-2">
           <textarea className="input" rows={3} value={f.message} onChange={set('message')} />
         </Field>
         <button className="btn-accent sm:col-span-2 !py-3 text-base">Get my quote →</button>

@@ -1,6 +1,6 @@
 import { buildDieline, dielineArea } from '../data/dielines';
-import { getProduct } from '../data/products';
-import type { CartItem, Dims, ProductId } from '../types';
+import { getProduct, getStyle } from '../data/products';
+import type { CartItem, Dims, ProductId, StyleId } from '../types';
 
 /** Placeholder rate — confirm the GST rate for each product's HSN code before going live. */
 export const GST_RATE = 0.18;
@@ -25,6 +25,7 @@ export function tierFor(qty: number) {
 
 export interface PriceSpec {
   productId: ProductId;
+  styleId?: StyleId;
   dims: Dims;
   materialId: string;
   finishId: string;
@@ -32,10 +33,11 @@ export interface PriceSpec {
 
 export function baseUnitPrice(spec: PriceSpec): number {
   const p = getProduct(spec.productId);
-  const area = dielineArea(buildDieline(spec.productId, spec.dims));
+  const style = getStyle(p, spec.styleId);
+  const area = dielineArea(buildDieline(spec.productId, spec.dims, style.id));
   const mat = p.materials.find((m) => m.id === spec.materialId)?.multiplier ?? 1;
   const fin = p.finishes.find((f) => f.id === spec.finishId)?.multiplier ?? 1;
-  return (p.basePrice + (p.areaRate * area) / 1000) * mat * fin;
+  return (p.basePrice + (p.areaRate * area) / 1000) * mat * fin * style.priceFactor;
 }
 
 export function unitPrice(spec: PriceSpec, qty: number): number {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { PRODUCTS, clampDims, defaultDims, dimsLabel, getProduct, isProductId } from '../data/products';
+import { PRODUCTS, clampDims, defaultDims, dimsLabel, getProduct, getStyle, isProductId, isStyleId } from '../data/products';
 import { buildDieline, dielineSvg } from '../data/dielines';
 import { pxPerMmFor, renderDieline } from '../lib/render';
 import { designSources, useImages } from '../lib/useImages';
@@ -9,9 +9,10 @@ import { inr, unitPrice } from '../lib/pricing';
 import { useCart } from '../store/cartStore';
 import DielineCanvas from '../components/studio/DielineCanvas';
 import Preview3D, { type ViewOptions } from '../components/studio/Preview3D';
+import QuoteModal from '../components/studio/QuoteModal';
 import PriceTiers from '../components/PriceTiers';
 import ProductIcon from '../components/ProductIcon';
-import type { Artwork, Design, Dieline, Product, ProductId } from '../types';
+import type { Artwork, Design, Dieline, Product, ProductId, StyleId } from '../types';
 
 const BOARD_COLOURS = [
   { label: 'Kraft', value: '#C9A57B' },
@@ -21,20 +22,16 @@ const BOARD_COLOURS = [
   { label: 'Blush', value: '#E8C4B8' },
 ];
 
-const LOGO_PANELS: Record<ProductId, string[]> = {
-  'rigid-box': ['lidTop', 'front'],
-  corrugated: ['front', 'back', 'top-front'],
-  'mono-carton': ['front', 'back', 'lid'],
-  'paper-bag': ['front', 'back'],
-  'paper-cup': ['wrap'],
-};
+const QTY_PRESETS = [1, 5, 10, 25, 50, 100, 250, 500];
 
-const QTY_PRESETS = [1, 10, 50, 100, 250, 500, 1000];
+const FRESH_VIEW: ViewOptions = { autoRotate: true, open: 0, fold: 0 };
 
-function freshDesign(p: Product, prev?: Design): Design {
+function freshDesign(p: Product, styleId: StyleId, prev?: Design): Design {
   return {
     productId: p.id,
-    dims: defaultDims(p),
+    styleId,
+    styleNote: prev?.styleNote ?? '',
+    dims: defaultDims(p, styleId),
     materialId: p.materials[0].id,
     finishId: p.finishes[0].id,
     whole: prev?.whole,
@@ -52,42 +49,47 @@ export default function Studio() {
   const navigate = useNavigate();
   const productId: ProductId = isProductId(params.productId) ? params.productId : 'rigid-box';
   const product = getProduct(productId);
+  const styleId: StyleId = isStyleId(product, params.styleId) ? params.styleId : product.styles[0].id;
+  const style = getStyle(product, styleId);
 
-  const [design, setDesign] = useState<Design>(() => freshDesign(product));
+  const [design, setDesign] = useState<Design>(() => freshDesign(product, styleId));
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [stage, setStage] = useState<'2d' | '3d'>('2d');
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [brand, setBrand] = useState('Your Brand');
-  const [view, setView] = useState<ViewOptions>({ lidOpen: false, flaps: 0, autoRotate: true });
+  const [view, setView] = useState<ViewOptions>(FRESH_VIEW);
   const [qty, setQty] = useState(1);
   const [sample, setSample] = useState(true);
   const [added, setAdded] = useState(false);
+  const [quoting, setQuoting] = useState(false);
   const addToCart = useCart((s) => s.add);
 
-  // switching product keeps the artwork, resets size/material
+  // switching product or style keeps the artwork but resets size, material and the 3D sliders
   useEffect(() => {
-    setDesign((d) => (d.productId === productId ? d : freshDesign(product, d)));
+    setDesign((d) => (d.productId === productId && d.styleId === styleId ? d : freshDesign(product, styleId, d)));
+    setView((v) => ({ ...FRESH_VIEW, autoRotate: v.autoRotate }));
     setSelected(null);
     setAdded(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
+  }, [productId, styleId]);
 
   const dims = useMemo(() => clampDims(product, design.dims), [product, design.dims]);
-  const dl = useMemo(() => buildDieline(productId, dims), [productId, dims]);
+  const dl = useMemo(() => buildDieline(productId, dims, styleId), [productId, dims, styleId]);
   const panel = dl.panels.find((p) => p.id === (selected ?? defaultPanel(dl))) ?? null;
   const { images, version, ready } = useImages(designSources(design));
 
   // print-resolution render that feeds the 3D textures (only when 3D is visible)
   const print = useMemo(() => {
-    if (step === 1 || !ready) return null;
+    if (stage !== '3d' || !ready) return null;
     const k = pxPerMmFor(dl, 2048);
     const c = document.createElement('canvas');
     renderDieline(c, dl, design, images, { pxPerMm: k });
     return { canvas: c, k };
-  }, [step, dl, design, images, version, ready]);
+  }, [stage, dl, design, images, version, ready]);
 
-  const spec = { productId, dims, materialId: design.materialId, finishId: design.finishId };
+  const spec = { productId, styleId, dims, materialId: design.materialId, finishId: design.finishId };
   const unit = unitPrice(spec, qty);
 
   const patch = (p: Partial<Design>) => setDesign((d) => ({ ...d, ...p }));
@@ -97,6 +99,11 @@ export default function Studio() {
       const a = d.perPanel[key];
       return a ? { ...d, perPanel: { ...d.perPanel, [key]: { ...a, ...p } } } : d;
     });
+
+  const go = (n: 1 | 2 | 3) => {
+    setStep(n);
+    setStage(n === 1 ? '2d' : '3d');
+  };
 
   async function upload(file: File | undefined, target: 'whole' | string) {
     if (!file) return;
@@ -122,29 +129,34 @@ export default function Studio() {
     const logo = sampleLogo(brand.trim() || 'Your Brand');
     const art: Artwork = { src: logo, offsetX: 0, offsetY: 0, scale: productId === 'paper-cup' ? 0.45 : 0.75, fit: 'contain' };
     const perPanel: Record<string, Artwork> = {};
-    for (const id of LOGO_PANELS[productId]) perPanel[id] = art;
+    for (const id of dl.hero) perPanel[id] = art;
     patch({ whole: { src: samplePattern(), offsetX: 0, offsetY: 0, scale: 1, fit: 'cover' }, perPanel, bgColor: '#1F3D2B' });
   }
 
   function downloadPrint() {
     const c = document.createElement('canvas');
     renderDieline(c, dl, design, images, { pxPerMm: pxPerMmFor(dl, 3600) });
-    c.toBlob((b) => b && downloadBlob(b, `petti-${productId}-print.png`, 'image/png'), 'image/png');
+    c.toBlob((b) => b && downloadBlob(b, `petti-${productId}-${styleId}-print.png`, 'image/png'), 'image/png');
   }
 
   const wrapRef = useRef<HTMLDivElement>(null);
+  const snapshot = () => {
+    const gl = wrapRef.current?.querySelector('canvas');
+    return gl ? shrinkCanvas(gl) : undefined;
+  };
   function handleAdd() {
     setError(null);
-    const gl = wrapRef.current?.querySelector('canvas');
     try {
       addToCart({
         productId,
+        styleId,
+        styleNote: design.styleNote.trim() || undefined,
         dims,
         materialId: design.materialId,
         finishId: design.finishId,
         qty,
         freeSample: sample,
-        thumbnail: gl ? shrinkCanvas(gl) : undefined,
+        thumbnail: snapshot(),
         hasArtwork: !!design.whole || Object.keys(design.perPanel).length > 0,
       });
       setAdded(true);
@@ -156,6 +168,7 @@ export default function Studio() {
   const material = product.materials.find((m) => m.id === design.materialId)!;
   const finish = product.finishes.find((f) => f.id === design.finishId)!;
   const panelArt = panel ? design.perPanel[panel.id] : undefined;
+  const hasArtwork = !!design.whole || Object.keys(design.perPanel).length > 0;
 
   return (
     <div className="container-x py-8">
@@ -175,14 +188,36 @@ export default function Studio() {
         ))}
       </div>
 
+      {/* opening styles for the chosen product */}
+      <div className="mt-3 rounded-2xl border border-ink/10 bg-white/70 p-3">
+        <p className="px-1 text-xs font-bold uppercase tracking-wide text-ink/50">Opening style</p>
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-label="Opening style">
+          {product.styles.map((s) => (
+            <button
+              key={s.id}
+              role="radio"
+              aria-checked={s.id === styleId}
+              onClick={() => navigate(`/studio/${productId}/${s.id}`, { replace: true })}
+              className={`shrink-0 rounded-xl border-2 px-3.5 py-2 text-left text-sm transition ${
+                s.id === styleId ? 'border-clay bg-white shadow-sm' : 'border-transparent bg-paper hover:border-forest/30'
+              }`}
+            >
+              <span className="block font-semibold">{s.name}</span>
+              <span className="block text-xs text-ink/55">{s.opening}</span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 px-1 text-sm text-ink/65">{style.blurb}</p>
+      </div>
+
       {/* stepper */}
-      <ol className="mt-6 grid grid-cols-3 gap-2 text-sm">
-        {(['Flat design', '3D preview', 'Quantity & order'] as const).map((label, i) => {
+      <ol className="mt-5 grid grid-cols-3 gap-2 text-sm">
+        {(['Size & artwork', '3D preview', 'Quote & sample'] as const).map((label, i) => {
           const n = (i + 1) as 1 | 2 | 3;
           return (
             <li key={label}>
               <button
-                onClick={() => setStep(n)}
+                onClick={() => go(n)}
                 className={`w-full rounded-xl border-2 px-3 py-2 text-left transition ${
                   step === n ? 'border-clay bg-white' : step > n ? 'border-forest/30 bg-forest/5' : 'border-transparent bg-white/60'
                 }`}
@@ -204,15 +239,28 @@ export default function Studio() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
         {/* main stage */}
         <div className="card min-w-0 p-4 sm:p-6">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-2xl font-semibold text-forest">
-              {product.name} <span className="text-base font-normal text-ink/50">· {dimsLabel(product, dims)}</span>
+              {product.name} <span className="text-base font-normal text-ink/50">· {style.name} · {dimsLabel(product, dims)}</span>
             </h1>
-            <span className="text-xs text-ink/50">
-              {step === 1 ? 'Click a panel to select it · drag to move artwork' : 'Drag to rotate · scroll or pinch to zoom · right-drag to pan'}
-            </span>
+            <div className="inline-flex rounded-full border border-ink/15 bg-paper p-0.5 text-sm font-semibold" role="tablist" aria-label="Preview mode">
+              {([['2d', 'Flat dieline'], ['3d', 'Interactive 3D']] as const).map(([k, label]) => (
+                <button
+                  key={k}
+                  role="tab"
+                  aria-selected={stage === k}
+                  onClick={() => setStage(k)}
+                  className={`rounded-full px-4 py-1.5 transition ${stage === k ? 'bg-forest text-paper' : 'text-ink/60 hover:text-ink'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-          {step === 1 ? (
+          <p className="mb-3 text-xs text-ink/50">
+            {stage === '2d' ? 'Click a panel to select it · drag to move artwork · crease lines and print areas are marked' : 'Drag to rotate · scroll or pinch to zoom · right-drag to pan'}
+          </p>
+          {stage === '2d' ? (
             <>
               <div className="rounded-xl bg-[repeating-conic-gradient(#f3efe7_0%_25%,#faf8f3_0%_50%)] bg-[length:20px_20px] p-3">
                 <DielineCanvas
@@ -233,14 +281,10 @@ export default function Studio() {
                 />
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-ink/60">
-                <span><span className="mr-1 inline-block h-0.5 w-5 bg-clay align-middle" />Printed panel</span>
+                <span><span className="mr-1 inline-block h-0.5 w-5 bg-clay align-middle" />Printed panel · fold line</span>
                 <span><span className="mr-1 inline-block w-5 border-t-2 border-dashed border-ink/50 align-middle" />Flap / tuck / glue</span>
+                {dl.marks && dl.marks.length > 0 && <span><span className="mr-1 inline-block h-2.5 w-4 rounded-full border border-clay align-middle" />Cut-out</span>}
                 {dl.sector && <span>The cup wall unrolls into a curved fan shape.</span>}
-              </div>
-              <div className="mt-5 flex justify-end">
-                <button className="btn-primary" onClick={() => setStep(2)}>
-                  Convert to 3D →
-                </button>
               </div>
             </>
           ) : (
@@ -256,11 +300,13 @@ export default function Studio() {
 
         {/* sidebar */}
         <aside className="space-y-4">
+          <SizeCard product={product} design={design} setDesign={setDesign} freeText={!!style.freeText} />
+
           {step === 1 && (
             <>
               <section className="card p-5">
                 <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Artwork</h2>
-                {!design.whole && Object.keys(design.perPanel).length === 0 && (
+                {!hasArtwork && (
                   <div className="mt-3 rounded-xl bg-paper p-3">
                     <p className="text-xs text-ink/60">No artwork yet? Try a sample with your brand name.</p>
                     <div className="mt-2 flex gap-2">
@@ -272,7 +318,7 @@ export default function Studio() {
 
                 <div className="mt-4">
                   <span className="label">Full-wrap background</span>
-                  <FileButton busy={busy} label={design.whole ? 'Replace image' : 'Upload image'} onFile={(f) => upload(f, 'whole')} />
+                  <FileButton busy={busy} label={design.whole ? 'Replace image' : 'Upload your artwork'} onFile={(f) => upload(f, 'whole')} />
                   {design.whole && (
                     <ArtControls art={design.whole} onChange={(p) => patchArt(null, p)} onRemove={() => patch({ whole: undefined })} />
                   )}
@@ -326,18 +372,23 @@ export default function Studio() {
                 </div>
               </section>
 
-              <SpecCard product={product} design={design} setDesign={setDesign} />
+              <MaterialCard product={product} design={design} setDesign={setDesign} />
 
               <section className="card space-y-2 p-5 text-sm">
                 <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Files</h2>
                 <button className="btn-ghost w-full" onClick={downloadPrint}>Download print-ready PNG</button>
                 <button
                   className="btn-ghost w-full"
-                  onClick={() => downloadBlob(dielineSvg(dl, `${product.name} ${dimsLabel(product, dims)}`), `petti-${productId}-dieline.svg`, 'image/svg+xml')}
+                  onClick={() => downloadBlob(dielineSvg(dl, `${product.name}, ${style.name} ${dimsLabel(product, dims)}`), `petti-${productId}-${styleId}-dieline.svg`, 'image/svg+xml')}
                 >
                   Download blank dieline (SVG)
                 </button>
               </section>
+
+              <div className="grid gap-2">
+                <button className="btn-primary w-full" onClick={() => go(2)}>Preview in 3D →</button>
+                <button className="btn-ghost w-full" onClick={() => go(3)}>Skip to quote & sample</button>
+              </div>
             </>
           )}
 
@@ -345,70 +396,96 @@ export default function Studio() {
             <section className="card space-y-4 p-5">
               <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">View</h2>
               <Toggle label="Auto-rotate" on={view.autoRotate} onChange={(v) => setView({ ...view, autoRotate: v })} />
-              {productId === 'rigid-box' && <Toggle label="Lift the lid" on={view.lidOpen} onChange={(v) => setView({ ...view, lidOpen: v })} />}
-              {productId === 'corrugated' && (
-                <label className="block text-sm">
-                  <span className="label">Flaps: open → closed</span>
-                  <input type="range" min={0} max={1} step={0.01} value={view.flaps} onChange={(e) => setView({ ...view, flaps: +e.target.value })} className="w-full accent-forest" />
+              {style.controls.map((c) => (
+                <label key={c.key} className="block text-sm">
+                  <span className="label !mb-0 flex justify-between"><span>{c.label}</span><span className="font-normal normal-case tracking-normal text-ink/40">{c.from} → {c.to}</span></span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={view[c.key]}
+                    onChange={(e) => setView({ ...view, [c.key]: +e.target.value })}
+                    className="mt-1 w-full accent-forest"
+                    aria-label={c.label}
+                  />
                 </label>
-              )}
+              ))}
+              {style.controls.length === 0 && <p className="text-xs text-ink/60">This style has no moving parts. Orbit around it to inspect every side.</p>}
               {productId === 'paper-cup' && <p className="text-xs text-ink/60">The 3D view bends the flat fan exactly the way the printed wall wraps around the cup.</p>}
               <div className="rounded-xl bg-paper p-3 text-sm">
                 <p><b>{material.label}</b> · {finish.label}</p>
                 <p className="mt-1 text-xs text-ink/60">{material.note}. {finish.note}.</p>
               </div>
-              <button className="btn-ghost w-full" onClick={() => setStep(1)}>← Edit artwork</button>
-              <button className="btn-primary w-full" onClick={() => setStep(3)}>Looks good. Choose quantity →</button>
+              <button className="btn-ghost w-full" onClick={() => go(1)}>← Edit artwork</button>
+              <button className="btn-primary w-full" onClick={() => go(3)}>Looks good. Get a quote →</button>
             </section>
           )}
 
           {step === 3 && (
             <section className="card space-y-4 p-5">
-              <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Quantity</h2>
-              <div className="flex items-center gap-2">
-                <button className="btn-ghost !px-3" onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Decrease">−</button>
-                <input
-                  type="number"
-                  min={1}
-                  className="input text-center text-lg font-semibold"
-                  value={qty}
-                  onChange={(e) => setQty(Math.max(1, Math.min(100000, Math.floor(+e.target.value) || 1)))}
-                  aria-label="Quantity"
-                />
-                <button className="btn-ghost !px-3" onClick={() => setQty(qty + 1)} aria-label="Increase">+</button>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {QTY_PRESETS.map((q) => (
-                  <button key={q} onClick={() => setQty(q)} className={`pill border ${qty === q ? 'border-forest bg-forest text-paper' : 'border-ink/15 bg-white'}`}>
-                    {q.toLocaleString('en-IN')}
-                  </button>
-                ))}
-              </div>
-              <PriceTiers spec={spec} qty={qty} onPick={setQty} />
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-dashed border-forest/40 bg-forest/5 p-3">
-                <input type="checkbox" checked={sample} onChange={(e) => setSample(e.target.checked)} className="mt-1 h-4 w-4 accent-forest" />
-                <span className="text-sm">
-                  <b>Send me a free printed sample first</b>
-                  <span className="block text-xs text-ink/60">One piece ships ahead of your order with its own tracking. ₹0.</span>
-                </span>
-              </label>
-              <div className="flex items-baseline justify-between border-t border-ink/10 pt-3">
-                <span className="text-sm text-ink/60">{qty.toLocaleString('en-IN')} × {inr(unit)}</span>
-                <span className="font-display text-2xl font-bold text-forest">{inr(Math.round(unit * qty * 100) / 100)}</span>
-              </div>
-              {added ? (
-                <div className="space-y-2">
-                  <p className="rounded-lg bg-forest/10 px-3 py-2 text-sm text-forest">✓ Added to your cart.</p>
-                  <Link to="/cart" className="btn-primary w-full">Go to cart →</Link>
-                  <button className="btn-ghost w-full" onClick={() => { setAdded(false); setStep(1); }}>Design another</button>
+              <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Quote & sample</h2>
+              <p className="text-sm text-ink/70">
+                Happy with the size, style and artwork? Send it to our team. We confirm a quotation and post you a <b>physical sample</b> before you commit.
+              </p>
+              <button className="btn-accent w-full !py-3 text-base" onClick={() => setQuoting(true)}>Request quote & free sample →</button>
+
+              <div className="border-t border-ink/10 pt-4">
+                <h3 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Price check</h3>
+                <div className="mt-3 flex items-center gap-2">
+                  <button className="btn-ghost !px-3" onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Decrease">−</button>
+                  <input
+                    type="number"
+                    min={1}
+                    className="input text-center text-lg font-semibold"
+                    value={qty}
+                    onChange={(e) => setQty(Math.max(1, Math.min(100000, Math.floor(+e.target.value) || 1)))}
+                    aria-label="Quantity"
+                  />
+                  <button className="btn-ghost !px-3" onClick={() => setQty(qty + 1)} aria-label="Increase">+</button>
                 </div>
-              ) : (
-                <button className="btn-primary w-full" onClick={handleAdd}>Add to cart</button>
-              )}
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {QTY_PRESETS.map((q) => (
+                    <button key={q} onClick={() => setQty(q)} className={`pill border ${qty === q ? 'border-forest bg-forest text-paper' : 'border-ink/15 bg-white'}`}>
+                      {q.toLocaleString('en-IN')}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3">
+                  <PriceTiers spec={spec} qty={qty} onPick={setQty} />
+                </div>
+                <div className="mt-3 flex items-baseline justify-between border-t border-ink/10 pt-3">
+                  <span className="text-sm text-ink/60">{qty.toLocaleString('en-IN')} × {inr(unit)}</span>
+                  <span className="font-display text-2xl font-bold text-forest">{inr(Math.round(unit * qty * 100) / 100)}</span>
+                </div>
+                <p className="mt-1 text-xs text-ink/50">Estimate. Your quotation is confirmed by our team.</p>
+              </div>
+
+              <div className="border-t border-ink/10 pt-4">
+                <p className="text-sm font-semibold">Ready to order right now?</p>
+                <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-xl border-2 border-dashed border-forest/40 bg-forest/5 p-3">
+                  <input type="checkbox" checked={sample} onChange={(e) => setSample(e.target.checked)} className="mt-1 h-4 w-4 accent-forest" />
+                  <span className="text-sm">
+                    <b>Send a free printed sample first</b>
+                    <span className="block text-xs text-ink/60">One piece ships ahead of your order with its own tracking. ₹0.</span>
+                  </span>
+                </label>
+                {added ? (
+                  <div className="mt-3 space-y-2">
+                    <p className="rounded-lg bg-forest/10 px-3 py-2 text-sm text-forest">✓ Added to your cart.</p>
+                    <Link to="/cart" className="btn-primary w-full">Go to cart →</Link>
+                    <button className="btn-ghost w-full" onClick={() => { setAdded(false); go(1); }}>Design another</button>
+                  </div>
+                ) : (
+                  <button className="btn-ghost mt-3 w-full" onClick={handleAdd}>Add to cart & order now</button>
+                )}
+              </div>
             </section>
           )}
         </aside>
       </div>
+
+      {quoting && <QuoteModal onClose={() => setQuoting(false)} design={design} dims={dims} dl={dl} images={images} qty={qty} snapshot={snapshot} />}
     </div>
   );
 }
@@ -454,29 +531,73 @@ function ArtControls({ art, onChange, onRemove }: { art: Artwork; onChange: (p: 
   );
 }
 
-function SpecCard({ product, design, setDesign }: { product: Product; design: Design; setDesign: React.Dispatch<React.SetStateAction<Design>> }) {
+/** Custom length / width / depth: a number box and a slider per dimension. */
+function SizeCard({
+  product,
+  design,
+  setDesign,
+  freeText,
+}: {
+  product: Product;
+  design: Design;
+  setDesign: React.Dispatch<React.SetStateAction<Design>>;
+  freeText: boolean;
+}) {
+  const setDim = (key: (typeof product.dims)[number]['key'], v: number) => setDesign((d) => ({ ...d, dims: { ...d.dims, [key]: v } }));
+  const clampAll = () => setDesign((d) => ({ ...d, dims: clampDims(product, d.dims) }));
   return (
     <section className="card space-y-4 p-5">
-      <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Size & material</h2>
-      <div className="grid grid-cols-3 gap-2">
-        {product.dims.map((s) => (
-          <label key={s.key} className="block">
-            <span className="label !normal-case !tracking-normal">{s.label} (mm)</span>
+      <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Custom size (mm)</h2>
+      {product.dims.map((s) => (
+        <div key={s.key}>
+          <div className="flex items-center justify-between gap-3">
+            <label className="text-sm font-medium" htmlFor={`dim-${s.key}`}>{s.label}</label>
             <input
+              id={`dim-${s.key}`}
               type="number"
-              className="input"
+              className="input !w-24 !py-1 text-right"
               min={s.min}
               max={s.max}
               value={design.dims[s.key] || ''}
-              onChange={(e) => setDesign((d) => ({ ...d, dims: { ...d.dims, [s.key]: +e.target.value } }))}
-              onBlur={() => setDesign((d) => ({ ...d, dims: clampDims(product, d.dims) }))}
+              onChange={(e) => setDim(s.key, +e.target.value)}
+              onBlur={clampAll}
             />
-          </label>
-        ))}
-      </div>
-      <p className="-mt-2 text-xs text-ink/50">
-        Ranges: {product.dims.map((s) => `${s.label.toLowerCase()} ${s.min}–${s.max}`).join(', ')} mm
-      </p>
+          </div>
+          <input
+            type="range"
+            min={s.min}
+            max={s.max}
+            step={1}
+            value={Math.min(s.max, Math.max(s.min, design.dims[s.key] || s.default))}
+            onChange={(e) => setDim(s.key, +e.target.value)}
+            className="mt-1 w-full accent-forest"
+            aria-label={`${s.label} slider`}
+          />
+          <p className="-mt-0.5 text-[11px] text-ink/40">{s.min}–{s.max} mm</p>
+        </div>
+      ))}
+      {freeText && (
+        <label className="block">
+          <span className="label">Describe your opening style</span>
+          <textarea
+            className="input"
+            rows={3}
+            maxLength={400}
+            placeholder="e.g. shoulder-neck box with a ribbon pull, or a book-fold with a window"
+            value={design.styleNote}
+            onChange={(e) => setDesign((d) => ({ ...d, styleNote: e.target.value }))}
+          />
+          <span className="mt-1 block text-xs text-ink/50">The 3D preview shows a lid & base as a starting point. Our team builds what you describe.</span>
+        </label>
+      )}
+    </section>
+  );
+}
+
+function MaterialCard({ product, design, setDesign }: { product: Product; design: Design; setDesign: React.Dispatch<React.SetStateAction<Design>> }) {
+  return (
+    <section className="card space-y-4 p-5">
+      <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Material & finish</h2>
       <label className="block">
         <span className="label">Material</span>
         <select className="input" value={design.materialId} onChange={(e) => setDesign((d) => ({ ...d, materialId: e.target.value }))}>
@@ -484,7 +605,7 @@ function SpecCard({ product, design, setDesign }: { product: Product; design: De
             <option key={m.id} value={m.id}>{m.label}</option>
           ))}
         </select>
-        <span className="mt-1 block text-xs text-forest">♻ {product.materials.find((m) => m.id === design.materialId)?.note}</span>
+        <span className="mt-1 block text-xs text-ink/55">{product.materials.find((m) => m.id === design.materialId)?.note}</span>
       </label>
       <label className="block">
         <span className="label">Finish</span>

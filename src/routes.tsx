@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, createHashRouter } from 'react-router-dom';
 import App from './App';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -20,14 +20,17 @@ const loading = (el: ReactNode) => (
   <Suspense fallback={<div className="container-x py-24 text-center text-ink/60">Loading the design studio…</div>}>{el}</Suspense>
 );
 
-export const router = createBrowserRouter([
+// Static hosts without an SPA fallback (GitHub Pages) build with VITE_HASH_ROUTER=1 so deep links and refreshes work.
+const createRouter = import.meta.env.VITE_HASH_ROUTER ? createHashRouter : createBrowserRouter;
+
+export const router = createRouter([
   {
     path: '/',
     element: <App />,
     children: [
       { index: true, element: <Home /> },
       { path: 'products', element: <Products /> },
-      { path: 'studio/:productId?', element: loading(<Studio />) },
+      { path: 'studio/:productId?/:styleId?', element: loading(<Studio />) },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'order/:id', element: <OrderConfirm /> },
