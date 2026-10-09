@@ -50,7 +50,7 @@ export default function Admin() {
             } else setBad(true);
           }}
         >
-          <h1 className="text-2xl font-semibold text-forest">Team login</h1>
+          <h1 className="text-2xl text-forest">Team login</h1>
           <input className="input" type="password" placeholder="Passcode" value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} autoFocus />
           {bad && <p className="text-sm text-red-700">Wrong passcode.</p>}
           <button className="btn-primary w-full">Enter</button>
@@ -64,7 +64,7 @@ export default function Admin() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Operations</p>
-          <h1 className="mt-2 text-4xl font-semibold text-forest">Petti ops desk</h1>
+          <h1 className="mt-2 text-4xl text-forest">Petti ops desk</h1>
         </div>
         <div className="flex gap-2">
           <button className="btn-ghost text-xs" onClick={() => confirm('Restore the demo orders and leads? Your own orders and leads are kept.') && seedDemoData(true)}>

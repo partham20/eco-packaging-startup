@@ -40,7 +40,7 @@ export default function Quote() {
     return (
       <div className="container-x max-w-2xl py-20 text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-forest text-3xl text-paper">✓</span>
-        <h1 className="mt-5 text-4xl font-semibold text-forest">Thanks, {done.name.split(' ')[0]}. We're on it.</h1>
+        <h1 className="mt-5 text-4xl text-forest">Thanks, {done.name.split(' ')[0]}. We're on it.</h1>
         <p className="mt-3 text-ink/70">
           A packaging specialist will call you on <b>{done.phone}</b> within one working day with sizes, materials and a price for{' '}
           {done.company}. Your reference is <b className="font-mono">{done.id}</b>.
@@ -56,7 +56,7 @@ export default function Quote() {
     <div className="container-x grid gap-10 py-12 lg:grid-cols-[1fr_1.4fr]">
       <div>
         <p className="eyebrow">General enquiry</p>
-        <h1 className="mt-3 text-4xl font-semibold leading-tight text-forest sm:text-5xl">Tell us what you're launching. We'll do the maths.</h1>
+        <h1 className="mt-3 text-4xl leading-tight text-forest sm:text-5xl">Tell us what you're launching. We'll do the maths.</h1>
         <p className="mt-4 text-ink/70">
           Whether it's a single prototype, 50 boxes for a pilot or 5,000 cups a month, we'll suggest the right format and material, and send a price
           you can plan around.

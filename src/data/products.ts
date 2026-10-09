@@ -346,3 +346,6 @@ export function clampDims(p: Product, dims: Dims): Dims {
 export function dimsLabel(p: Product, dims: Dims): string {
   return p.dims.map((s) => dims[s.key]).join(' × ') + ' mm';
 }
+
+/** "Rigid Box" → "Rigid Boxes", "Paper Cup" → "Paper Cups". */
+export const plural = (name: string) => (/(x|s|ch|sh)$/.test(name) ? `${name}es` : `${name}s`);

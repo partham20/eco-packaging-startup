@@ -62,7 +62,7 @@ export default function InstantQuote({ className = '' }: { className?: string })
     <div className={`card relative overflow-hidden border-clay/30 p-6 shadow-xl ${className}`}>
       <span className="pill absolute right-5 top-5 bg-clay text-white">Free</span>
       <p className="eyebrow">Instant prototype quote</p>
-      <h2 className="mt-2 text-2xl font-semibold text-forest">Price your pilot run in 20 seconds</h2>
+      <h2 className="mt-2 text-2xl text-forest">Price your pilot run in 20 seconds</h2>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block">

@@ -41,7 +41,7 @@ export default function Track() {
   return (
     <div className="container-x max-w-3xl py-12">
       <p className="eyebrow">Tracking</p>
-      <h1 className="mt-3 text-4xl font-semibold text-forest">Where's my request or order?</h1>
+      <h1 className="mt-3 text-4xl text-forest">Where's my request or order?</h1>
       <form
         className="card mt-8 grid gap-3 p-5 sm:grid-cols-[1fr_1fr_auto]"
         onSubmit={(e) => {

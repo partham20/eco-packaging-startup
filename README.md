@@ -2,7 +2,19 @@
 
 A working prototype website for an MBA entrepreneurship project. Petti makes rigid boxes, corrugated boxes, mono cartons, paper cups and paper bags for **startups and emerging brands launching pilot runs**, with **no minimum order** and **a physical sample before you commit**.
 
-> Positioning: **Prototype it. Pilot it. No minimum order.**
+> Positioning: **Custom packaging that starts at one.**
+
+## Version 3 (this branch)
+
+A visual redesign modelled on the layout of alorapackaging.com, on top of all the v2 features (studio, 21 opening styles, quote & sample workflow, tracking, ops desk):
+
+- Warm cream / espresso / terracotta palette with blush and sage tints, Inter Tight headings with Instrument Serif italic accents
+- Sticky nav with *Packaging types* and *By industry* dropdowns, scrolling offer ticker, floating WhatsApp button
+- Home page: hero with product composition and free-sample card, brand marquee, product cards, three-step "how it works", premium-finishes carousel, sustainability, pilot pricing, 18 industries, full custom-quote form with artwork upload, testimonials, CTA, FAQ
+- Isometric SVG pack illustrations (`src/components/PackShot.tsx`) instead of photography
+- Dark footer with scattered packs and trust badges
+
+Versions: v1 = `main`, v2 = `pilot-prototyping`, v3 = `v3-alora-style`.
 
 ## Run it
 

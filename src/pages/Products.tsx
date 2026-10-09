@@ -1,13 +1,22 @@
 import { Link } from 'react-router-dom';
 import { PRODUCTS, defaultDims } from '../data/products';
 import { inr, unitPrice } from '../lib/pricing';
-import ProductIcon from '../components/ProductIcon';
+import PackShot, { type ShotKind, type ToneName } from '../components/PackShot';
+import type { ProductId } from '../types';
+
+const SHOT: Record<ProductId, [ShotKind, ToneName, string]> = {
+  'rigid-box': ['rigid', 'blush', 'from-blush-light to-blush'],
+  corrugated: ['mailer', 'kraft', 'from-[#F3EADF] to-[#E8D8C3]'],
+  'mono-carton': ['tuck', 'sage', 'from-[#EEF3EA] to-sage'],
+  'paper-cup': ['cup', 'cream', 'from-cream to-[#EFE3CF]'],
+  'paper-bag': ['bag', 'terracotta', 'from-[#F6E3DA] to-[#EFCFC2]'],
+};
 
 export default function Products() {
   return (
     <div className="container-x py-12">
       <p className="eyebrow">Product lines</p>
-      <h1 className="mt-3 text-4xl font-semibold text-forest sm:text-5xl">Five formats, every one made to order.</h1>
+      <h1 className="mt-3 text-4xl text-forest sm:text-5xl">Five formats, every one made to order.</h1>
       <p className="mt-3 max-w-2xl text-ink/70">
         Every format comes in any size within its range, in several opening styles. Every one ships from a single piece, with no minimum order.
       </p>
@@ -15,12 +24,12 @@ export default function Products() {
         {PRODUCTS.map((p) => {
           const spec = { productId: p.id, styleId: p.styles[0].id, dims: defaultDims(p), materialId: p.materials[0].id, finishId: p.finishes[0].id };
           return (
-            <article key={p.id} className="card grid gap-6 p-6 md:grid-cols-[160px_1fr_220px]">
-              <div className="grid h-36 place-items-center rounded-xl bg-paper text-forest">
-                <ProductIcon id={p.id} className="h-24 w-24" />
+            <article key={p.id} className="card grid gap-6 p-6 md:grid-cols-[200px_1fr_220px]">
+              <div className={`grid aspect-square place-items-center self-start rounded-2xl bg-gradient-to-br p-3 ${SHOT[p.id][2]}`}>
+                <PackShot kind={SHOT[p.id][0]} tone={SHOT[p.id][1]} className="w-full" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold">{p.name}</h2>
+                <h2 className="text-2xl">{p.name}</h2>
                 <p className="mt-1 text-ink/70">{p.blurb}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {p.useCases.map((u) => <span key={u} className="pill bg-kraft/25 text-ink/80">{u}</span>)}

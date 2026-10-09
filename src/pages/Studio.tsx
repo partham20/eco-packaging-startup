@@ -240,7 +240,7 @@ export default function Studio() {
         {/* main stage */}
         <div className="card min-w-0 p-4 sm:p-6">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-2xl font-semibold text-forest">
+            <h1 className="text-2xl text-forest">
               {product.name} <span className="text-base font-normal text-ink/50">· {style.name} · {dimsLabel(product, dims)}</span>
             </h1>
             <div className="inline-flex rounded-full border border-ink/15 bg-paper p-0.5 text-sm font-semibold" role="tablist" aria-label="Preview mode">
@@ -305,7 +305,7 @@ export default function Studio() {
           {step === 1 && (
             <>
               <section className="card p-5">
-                <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Artwork</h2>
+                <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">Artwork</h2>
                 {!hasArtwork && (
                   <div className="mt-3 rounded-xl bg-paper p-3">
                     <p className="text-xs text-ink/60">No artwork yet? Try a sample with your brand name.</p>
@@ -375,7 +375,7 @@ export default function Studio() {
               <MaterialCard product={product} design={design} setDesign={setDesign} />
 
               <section className="card space-y-2 p-5 text-sm">
-                <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Files</h2>
+                <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">Files</h2>
                 <button className="btn-ghost w-full" onClick={downloadPrint}>Download print-ready PNG</button>
                 <button
                   className="btn-ghost w-full"
@@ -394,7 +394,7 @@ export default function Studio() {
 
           {step === 2 && (
             <section className="card space-y-4 p-5">
-              <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">View</h2>
+              <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">View</h2>
               <Toggle label="Auto-rotate" on={view.autoRotate} onChange={(v) => setView({ ...view, autoRotate: v })} />
               {style.controls.map((c) => (
                 <label key={c.key} className="block text-sm">
@@ -424,7 +424,7 @@ export default function Studio() {
 
           {step === 3 && (
             <section className="card space-y-4 p-5">
-              <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Quote & sample</h2>
+              <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">Quote & sample</h2>
               <p className="text-sm text-ink/70">
                 Happy with the size, style and artwork? Send it to our team. We confirm a quotation and post you a <b>physical sample</b> before you commit.
               </p>
@@ -547,7 +547,7 @@ function SizeCard({
   const clampAll = () => setDesign((d) => ({ ...d, dims: clampDims(product, d.dims) }));
   return (
     <section className="card space-y-4 p-5">
-      <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Custom size (mm)</h2>
+      <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">Custom size (mm)</h2>
       {product.dims.map((s) => (
         <div key={s.key}>
           <div className="flex items-center justify-between gap-3">
@@ -597,7 +597,7 @@ function SizeCard({
 function MaterialCard({ product, design, setDesign }: { product: Product; design: Design; setDesign: React.Dispatch<React.SetStateAction<Design>> }) {
   return (
     <section className="card space-y-4 p-5">
-      <h2 className="font-sans text-sm font-bold uppercase tracking-wide text-ink/70">Material & finish</h2>
+      <h2 className="font-sans text-sm uppercase tracking-wide text-ink/70">Material & finish</h2>
       <label className="block">
         <span className="label">Material</span>
         <select className="input" value={design.materialId} onChange={(e) => setDesign((d) => ({ ...d, materialId: e.target.value }))}>

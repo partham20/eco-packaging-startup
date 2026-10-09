@@ -80,7 +80,7 @@ export default function StarterKit() {
       <div className="container-x grid items-center gap-10 py-14 lg:grid-cols-2">
         <div>
           <p className="eyebrow">Free download · optional physical pack</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight text-forest sm:text-5xl">The Prototype Kit for founders launching a pilot</h1>
+          <h1 className="mt-3 text-4xl leading-tight text-forest sm:text-5xl">The Prototype Kit for founders launching a pilot</h1>
           <p className="mt-4 text-lg text-ink/70">Everything we wish someone had given us before we ordered our first run of packaging.</p>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
@@ -97,7 +97,7 @@ export default function StarterKit() {
           </ul>
         </div>
         <form onSubmit={submit} noValidate className="card space-y-4 p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold">Where should we send it?</h2>
+          <h2 className="text-2xl">Where should we send it?</h2>
           <Field label="Your name" error={err.name}><input className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoComplete="name" /></Field>
           <Field label="Email" error={err.email}><input className="input" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} autoComplete="email" /></Field>
           <Field label="Brand / company" error={err.company}><input className="input" value={f.company} onChange={(e) => setF({ ...f, company: e.target.value })} autoComplete="organization" /></Field>
@@ -143,13 +143,13 @@ function KitContent() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Your prototype kit</p>
-          <h1 className="mt-2 text-4xl font-semibold text-forest">Prototype Kit</h1>
+          <h1 className="mt-2 text-4xl text-forest">Prototype Kit</h1>
         </div>
         <button className="btn-ghost no-print" onClick={() => window.print()}>Print / save as PDF</button>
       </div>
 
       <section className="mt-10">
-        <h2 className="text-2xl font-semibold">1. Blank dielines</h2>
+        <h2 className="text-2xl">1. Blank dielines</h2>
         <p className="mt-1 text-sm text-ink/60">Default sizes, in mm. Need a custom size? Change the dimensions in the studio and download again.</p>
         <div className="mt-4 flex flex-wrap gap-2 no-print">
           {PRODUCTS.map((x) => (
@@ -182,7 +182,7 @@ function KitContent() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold">2. Size cheat sheet</h2>
+        <h2 className="text-2xl">2. Size cheat sheet</h2>
         <div className="card mt-4 overflow-x-auto">
           <table className="w-full min-w-[560px] text-sm">
             <thead className="bg-paper text-left text-xs uppercase tracking-wide text-ink/50">
@@ -203,7 +203,7 @@ function KitContent() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold">3. Material guide</h2>
+        <h2 className="text-2xl">3. Material guide</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {PRODUCTS.map((x) => (
             <div key={x.id} className="card p-5 text-sm">
@@ -221,7 +221,7 @@ function KitContent() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold">4. Pilot cost planner</h2>
+        <h2 className="text-2xl">4. Pilot cost planner</h2>
         <div className="card mt-4 grid gap-6 p-6 md:grid-cols-[280px_1fr]">
           <div className="space-y-4">
             <label className="block">

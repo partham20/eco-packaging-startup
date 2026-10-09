@@ -23,7 +23,7 @@ export default function Checkout() {
   if (items.length === 0 && !paying)
     return (
       <div className="container-x py-24 text-center">
-        <h1 className="text-3xl font-semibold text-forest">Nothing to check out</h1>
+        <h1 className="text-3xl text-forest">Nothing to check out</h1>
         <Link to="/studio" className="btn-primary mt-6">Design something →</Link>
       </div>
     );
@@ -58,11 +58,11 @@ export default function Checkout() {
 
   return (
     <div className="container-x py-10">
-      <h1 className="text-4xl font-semibold text-forest">Checkout</h1>
+      <h1 className="text-4xl text-forest">Checkout</h1>
       <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]" noValidate>
         <div className="space-y-6">
           <section className="card grid gap-4 p-6 sm:grid-cols-2">
-            <h2 className="text-xl font-semibold sm:col-span-2">Delivery details</h2>
+            <h2 className="text-xl sm:col-span-2">Delivery details</h2>
             <Field label="Full name" error={errors.name}><input className="input" value={c.name} onChange={set('name')} autoComplete="name" /></Field>
             <Field label="Company / brand (optional)"><input className="input" value={c.company} onChange={set('company')} autoComplete="organization" /></Field>
             <Field label="Email" error={errors.email}><input className="input" type="email" value={c.email} onChange={set('email')} autoComplete="email" /></Field>
@@ -72,7 +72,7 @@ export default function Checkout() {
             <Field label="PIN code" error={errors.pincode}><input className="input" inputMode="numeric" maxLength={6} value={c.pincode} onChange={set('pincode')} autoComplete="postal-code" /></Field>
           </section>
           <section className="card p-6">
-            <h2 className="text-xl font-semibold">Payment</h2>
+            <h2 className="text-xl">Payment</h2>
             <p className="mt-1 text-xs text-ink/50">Demo checkout. No real payment is taken.</p>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
               {[
@@ -89,7 +89,7 @@ export default function Checkout() {
           </section>
         </div>
         <aside className="card h-fit space-y-3 p-6">
-          <h2 className="text-xl font-semibold">Order summary</h2>
+          <h2 className="text-xl">Order summary</h2>
           <p className="text-sm text-ink/60">{items.length} design{items.length > 1 ? 's' : ''} · {items.reduce((a, i) => a + i.qty, 0).toLocaleString('en-IN')} pieces</p>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-ink/60">Subtotal</span><span>{inr(t.subtotal)}</span></div>

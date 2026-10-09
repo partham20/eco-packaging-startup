@@ -5,7 +5,7 @@ export default function About() {
     <div>
       <section className="container-x max-w-3xl py-16">
         <p className="eyebrow">Our story</p>
-        <h1 className="mt-4 text-4xl font-semibold leading-tight text-forest sm:text-5xl">
+        <h1 className="mt-4 text-4xl leading-tight text-forest sm:text-5xl">
           Good packaging shouldn't need a bulk order to get started.
         </h1>
         <div className="mt-8 space-y-5 text-lg leading-relaxed text-ink/80">
@@ -27,7 +27,7 @@ export default function About() {
 
       <section className="kraft-texture">
         <div className="container-x py-16">
-          <h2 className="text-3xl font-semibold text-forest">Business model at a glance</h2>
+          <h2 className="text-3xl text-forest">Business model at a glance</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
               ['Customer segments', 'Startups and emerging brands launching pilot runs, founders testing a product, cafés and cloud kitchens, gifting businesses, and event organisers.'],
@@ -47,7 +47,7 @@ export default function About() {
       </section>
 
       <section className="container-x py-16 text-center">
-        <h2 className="text-3xl font-semibold text-forest">Make your first prototype today.</h2>
+        <h2 className="text-3xl text-forest">Make your first prototype today.</h2>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link to="/studio" className="btn-primary">Open the studio →</Link>
           <Link to="/starter-kit" className="btn-ghost">Get the free prototype kit</Link>

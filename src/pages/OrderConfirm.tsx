@@ -9,7 +9,7 @@ export default function OrderConfirm() {
   if (!order)
     return (
       <div className="container-x py-24 text-center">
-        <h1 className="text-3xl font-semibold text-forest">Order not found</h1>
+        <h1 className="text-3xl text-forest">Order not found</h1>
         <Link to="/track" className="btn-primary mt-6">Track an order</Link>
       </div>
     );
@@ -18,7 +18,7 @@ export default function OrderConfirm() {
     <div className="container-x max-w-3xl py-14">
       <div className="text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-forest text-3xl text-paper">✓</span>
-        <h1 className="mt-5 text-4xl font-semibold text-forest">Thank you, {order.customer.name.split(' ')[0]}!</h1>
+        <h1 className="mt-5 text-4xl text-forest">Thank you, {order.customer.name.split(' ')[0]}!</h1>
         <p className="mt-2 text-ink/70">
           Your order <b className="font-mono">{order.id}</b> is confirmed. We've sent the details to {order.customer.email}.
         </p>

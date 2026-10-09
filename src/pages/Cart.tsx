@@ -12,7 +12,7 @@ export default function Cart() {
   if (items.length === 0)
     return (
       <div className="container-x py-24 text-center">
-        <h1 className="text-4xl font-semibold text-forest">Your cart is empty</h1>
+        <h1 className="text-4xl text-forest">Your cart is empty</h1>
         <p className="mt-3 text-ink/60">Design a box, cup or bag. You can order just one.</p>
         <Link to="/studio" className="btn-primary mt-8">Open the design studio →</Link>
       </div>
@@ -20,7 +20,7 @@ export default function Cart() {
 
   return (
     <div className="container-x py-10">
-      <h1 className="text-4xl font-semibold text-forest">Your cart</h1>
+      <h1 className="text-4xl text-forest">Your cart</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         <ul className="space-y-4">
           {items.map((i) => {
@@ -34,7 +34,7 @@ export default function Cart() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="font-sans text-lg font-semibold">{p.name} <span className="text-sm font-normal text-ink/55">· {getStyle(p, i.styleId).name}</span></h2>
+                      <h2 className="font-sans text-lg">{p.name} <span className="text-sm font-normal text-ink/55">· {getStyle(p, i.styleId).name}</span></h2>
                       <p className="text-sm text-ink/60">
                         {dimsLabel(p, i.dims)} · {p.materials.find((m) => m.id === i.materialId)?.label} · {p.finishes.find((f) => f.id === i.finishId)?.label}
                       </p>
@@ -62,7 +62,7 @@ export default function Cart() {
           })}
         </ul>
         <aside className="card h-fit space-y-3 p-6 lg:sticky lg:top-24">
-          <h2 className="text-xl font-semibold">Summary</h2>
+          <h2 className="text-xl">Summary</h2>
           <Row k="Subtotal" v={inr(t.subtotal)} />
           {samples > 0 && <Row k={`Free samples (${samples})`} v="₹0" />}
           <Row k="Shipping" v={t.shipping ? inr(t.shipping) : 'Free'} />
