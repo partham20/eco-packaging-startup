@@ -12,7 +12,7 @@
   h1,
   h2,
   h3 {
-    @apply font-display font-normal;
+    @apply font-display font-medium;
   }
 }
 
@@ -33,19 +33,19 @@
     @apply btn border border-ink/15 bg-white text-ink hover:border-ink/40;
   }
   .card {
-    @apply rounded-3xl border border-ink/10 bg-white;
+    @apply rounded-xl border border-ink/10 bg-white;
   }
   .label {
     @apply mb-1.5 block text-[13px] font-semibold text-ink;
   }
   .input {
-    @apply w-full rounded-full border border-ink/15 bg-white px-4 py-2.5 text-sm outline-none transition placeholder:text-ink/40 focus:border-clay focus:ring-2 focus:ring-clay/20;
+    @apply w-full rounded-full border border-ink/15 bg-white px-4 py-2.5 text-sm outline-none transition placeholder:text-ink/40 focus:border-ink focus:ring-2 focus:ring-ink/10;
   }
   textarea.input {
     @apply rounded-2xl;
   }
   .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.25em] text-ink/60;
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-leaf-dark;
   }
   .pill {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
@@ -54,12 +54,12 @@
     @apply font-serif italic text-clay;
   }
   .section-title {
-    @apply font-display text-4xl leading-[1.08] text-ink sm:text-5xl;
+    @apply font-display text-[26px] font-medium leading-tight text-ink sm:text-[28px];
   }
 }
 
 .kraft-texture {
-  @apply bg-cream;
+  @apply bg-stone;
 }
 
 .no-scrollbar::-webkit-scrollbar {

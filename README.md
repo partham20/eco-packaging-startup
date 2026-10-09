@@ -4,7 +4,16 @@ A working prototype website for an MBA entrepreneurship project. Petti makes rig
 
 > Positioning: **Custom packaging that starts at one.**
 
-## Version 3 (this branch)
+## Version 4 (this branch)
+
+A storefront-style redesign modelled on the layout of ezpac.in, built on top of v3:
+
+- Clean white storefront: DM Sans, near-black ink, leaf-green logo accent, lavender value band
+- Header with live product search, Account and cart-total buttons; second row with *By Industry* and *E-Commerce* dropdowns and a "3D Design Studio" link
+- Home: 2-slide hero ("Design your packaging in 3D before you print"), scrolling value band, 3-step guide, five product shelves (carousel with dots), testimonial slider, promise/CTA block, FAQ
+- White footer with newsletter, cookie consent banner, WhatsApp chat bubble
+
+## Version 3
 
 A visual redesign modelled on the layout of alorapackaging.com, on top of all the v2 features (studio, 21 opening styles, quote & sample workflow, tracking, ops desk):
 
@@ -14,7 +23,7 @@ A visual redesign modelled on the layout of alorapackaging.com, on top of all th
 - Isometric SVG pack illustrations (`src/components/PackShot.tsx`) instead of photography
 - Dark footer with scattered packs and trust badges
 
-Versions: v1 = `main`, v2 = `pilot-prototyping`, v3 = `v3-alora-style`.
+Versions: v1 = `main`, v2 = `pilot-prototyping`, v3 = `v3-alora-style`, v4 = `v4-ezpac-style`.
 
 ## Run it
 

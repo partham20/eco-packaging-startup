@@ -4,20 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        // v3 palette: warm cream, espresso ink, terracotta accent, blush and sage tints
-        kraft: { DEFAULT: '#E3A792', light: '#F6DCD2', dark: '#B9735C' },
-        forest: { DEFAULT: '#2A211C', light: '#45372E', dark: '#231B16' },
-        paper: '#FBF8F2',
-        cream: '#F6F0E6',
-        ink: '#2A211C',
-        clay: '#D27D62',
-        blush: { DEFAULT: '#F8DAD4', light: '#FCEDEA' },
+        // v4 palette: clean white storefront, near-black ink, leaf-green accent, lavender band
+        kraft: { DEFAULT: '#DCDCD6', light: '#EEEEEA', dark: '#9C9C94' },
+        forest: { DEFAULT: '#1D1D1D', light: '#3A3A3A', dark: '#111111' },
+        paper: '#FFFFFF',
+        cream: '#F3F3F0',
+        ink: '#1D1D1D',
+        clay: '#4E8A2A',
+        blush: { DEFAULT: '#EDE6F2', light: '#F5F1F8' },
+        leaf: { DEFAULT: '#6DB33F', dark: '#4E8A2A' },
+        stone: '#EAEAE4',
         sage: { DEFAULT: '#E4EBDD', mid: '#C8DCC8', deep: '#34503B' },
       },
       fontFamily: {
-        display: ['"Inter Tight"', '"Inter"', 'system-ui', 'sans-serif'],
-        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
+        display: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"Crimson Pro"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        condensed: ['"Oswald"', '"Arial Narrow"', 'sans-serif'],
       },
       keyframes: {
         marquee: { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } },

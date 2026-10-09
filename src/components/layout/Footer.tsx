@@ -1,28 +1,14 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Lock, MessageCircle, ShieldCheck } from 'lucide-react';
-import { Logo } from './Nav';
-import { PRODUCTS, plural } from '../../data/products';
-import PackShot, { type ShotKind, type ToneName } from '../PackShot';
+import { Mail, MessageCircle, Phone, Send } from 'lucide-react';
+import { validEmail } from '../forms';
 
-// Little packs scattered along the bottom of the footer
-const SCATTER: [ShotKind, ToneName, number, number, number][] = [
-  ['shipper', 'kraft', 2, 62, 56],
-  ['rigid', 'espresso', 12, 78, 48],
-  ['bag', 'white', 22, 58, 40],
-  ['cup', 'cream', 31, 80, 34],
-  ['mailer', 'kraft', 40, 66, 52],
-  ['tuck', 'sage', 51, 76, 40],
-  ['magnetic', 'espresso', 60, 58, 46],
-  ['drawer', 'white', 70, 78, 44],
-  ['shipper', 'kraft', 80, 62, 40],
-  ['cup', 'white', 89, 76, 36],
-  ['rigid', 'sage', 95, 56, 34],
-];
+const u = 'underline decoration-1 underline-offset-[5px] hover:decoration-2';
 
-function SocialIcon({ d, label }: { d: string; label: string }) {
+function Social({ d, label, fill = false }: { d: string; label: string; fill?: boolean }) {
   return (
-    <a href="#" onClick={(e) => e.preventDefault()} aria-label={label} className="grid h-9 w-9 place-items-center rounded-full border border-paper/20 text-paper/80 transition hover:border-paper/60 hover:text-paper">
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <a href="#" onClick={(e) => e.preventDefault()} aria-label={label} className="text-ink transition hover:opacity-70">
+      <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill={fill ? 'currentColor' : 'none'} stroke={fill ? 'none' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d={d} />
       </svg>
     </a>
@@ -30,77 +16,72 @@ function SocialIcon({ d, label }: { d: string; label: string }) {
 }
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [state, setState] = useState<'idle' | 'bad' | 'ok'>('idle');
   return (
     <>
-      <footer className="relative mt-0 overflow-hidden bg-forest-dark text-paper/75">
-        <div className="container-x relative z-10 grid gap-10 pb-10 pt-16 md:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
+      <footer className="mt-12 border-t border-ink/10 bg-white text-ink">
+        <div className="container-x grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="inline-block"><Logo light /></div>
-            <p className="mt-5 max-w-xs text-sm leading-relaxed">
-              Custom packaging for startups and emerging brands. Made on demand from a single piece, shipped with care from Chennai.
+            <h4 className="text-[28px] font-normal">Petti</h4>
+            <p className="mt-4 text-[17px]">Small Order, Big Impact</p>
+            <div className="mt-5 flex items-center gap-4">
+              <a href="tel:+919000000000" aria-label="Call us"><Phone className="h-[18px] w-[18px] fill-current" /></a>
+              <a href="mailto:orders@petti.example" aria-label="Email us"><Mail className="h-[18px] w-[18px]" /></a>
+              <Social label="Instagram" d="M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4zm5 5a4 4 0 100 8 4 4 0 000-8zm5.5-1.5h.01" />
+              <Social label="LinkedIn" fill d="M4 9h4v11H4zM6 4a2 2 0 110 4 2 2 0 010-4zm6 5h4v1.6c.6-1 1.9-1.9 3.6-1.9 3 0 3.4 2 3.4 4.6V20h-4v-5.6c0-1.3 0-3-1.8-3S13 12.8 13 14.3V20h-4z" />
+              <a href="https://wa.me/919000000000" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle className="h-[18px] w-[18px]" /></a>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-[20px] font-medium">Packaging</h4>
+            <ul className="mt-4 space-y-2 text-[17px]">
+              <li><Link to="/products" className={u}>All Products</Link></li>
+              <li><Link to="/studio" className={u}>3D Design Studio</Link></li>
+              <li><Link to="/starter-kit" className={u}>Free Sample Kit</Link></li>
+              <li><Link to="/quote" className={u}>Contact Us</Link></li>
+              <li><Link to="/about" className={u}>Our Story</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-[28px] font-normal">Contact information</h4>
+            <p className="mt-4 text-[17px] leading-relaxed">
+              Just contact us by email<br />orders@petti.example<br />+91 90000 00000<br />Ambattur Industrial Estate, Chennai
             </p>
-            <div className="mt-5 flex gap-2">
-              <SocialIcon label="Instagram" d="M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4zm5 5a4 4 0 100 8 4 4 0 000-8zm5.5-1.5h.01" />
-              <SocialIcon label="LinkedIn" d="M4 9h4v11H4zM6 4a2 2 0 110 4 2 2 0 010-4zm6 5h4v1.6c.6-1 1.9-1.9 3.6-1.9 3 0 3.4 2 3.4 4.6V20h-4v-5.6c0-1.3 0-3-1.8-3S13 12.8 13 14.3V20h-4z" />
-              <SocialIcon label="Pinterest" d="M12 3a9 9 0 00-3.3 17.4c-.1-.8-.1-2 .1-2.9l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.8 0 1.2.6 1.2 1.4 0 .8-.5 2.1-.8 3.2-.2 1 .5 1.8 1.5 1.8 1.8 0 3.1-1.9 3.1-4.6 0-2.4-1.7-4.1-4.2-4.1-2.9 0-4.5 2.1-4.5 4.4 0 .9.3 1.8.8 2.3" />
-            </div>
           </div>
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-paper">Products</h4>
-            <ul className="space-y-2.5 text-sm">
-              {PRODUCTS.map((p) => (
-                <li key={p.id}><Link to={`/studio/${p.id}`} className="hover:text-paper">{plural(p.name)}</Link></li>
-              ))}
-              <li><Link to="/products" className="hover:text-paper">Full catalog</Link></li>
+            <h4 className="text-[20px] font-medium">Quick links</h4>
+            <ul className="mt-4 space-y-2 text-[17px]">
+              <li><Link to="/studio/rigid-box" className={u}>Rigid Boxes</Link></li>
+              <li><Link to="/studio/corrugated" className={u}>E-Commerce</Link></li>
+              <li><Link to="/studio/paper-bag" className={u}>Paper Bags</Link></li>
+              <li><Link to="/track" className={u}>Track Order</Link></li>
+              <li><Link to="/#faq" className={u}>FAQ</Link></li>
+              <li><Link to="/admin" className={u}>Team Login</Link></li>
             </ul>
           </div>
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-paper">Company</h4>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/about" className="hover:text-paper">Our story</Link></li>
-              <li><Link to="/studio" className="hover:text-paper">Design studio</Link></li>
-              <li><Link to="/starter-kit" className="hover:text-paper">Free sample kit</Link></li>
-              <li><Link to="/quote" className="hover:text-paper">Contact us</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-paper">Orders</h4>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/track" className="hover:text-paper">Track a request or order</Link></li>
-              <li><Link to="/cart" className="hover:text-paper">Your cart</Link></li>
-              <li><Link to="/quote" className="hover:text-paper">Bulk & pilot pricing</Link></li>
-              <li><Link to="/admin" className="hover:text-paper">Team login</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-paper">Contact</h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>hello@petti.example</li>
-              <li>+91 90000 00000</li>
-              <li>Ambattur Industrial Estate,<br />Chennai, Tamil Nadu</li>
-            </ul>
+          <div className="sm:col-span-2 lg:col-span-4">
+            <h4 className="text-[20px] font-medium">Newsletter</h4>
+            {state === 'ok' ? (
+              <p className="mt-4 text-[15px] text-leaf-dark">Thanks! You're on the list for new styles and offers.</p>
+            ) : (
+              <form
+                className="relative mt-4 w-full max-w-[272px]"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setState(validEmail(email) ? 'ok' : 'bad');
+                }}
+              >
+                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter your email" aria-label="Email for newsletter" className="h-[52px] w-full rounded-md border border-ink/20 pl-3 pr-12 text-base outline-none focus:border-ink" />
+                <button aria-label="Subscribe" className="absolute right-3 top-1/2 -translate-y-1/2"><Send className="h-6 w-6" strokeWidth={1.4} /></button>
+                {state === 'bad' && <span className="mt-1 block text-xs text-red-700">Enter a valid email</span>}
+              </form>
+            )}
           </div>
         </div>
-
-        <div className="pointer-events-none relative h-36 sm:h-44" aria-hidden>
-          {SCATTER.map(([k, tone, left, top, size], i) => (
-            <div key={i} className="absolute animate-float" style={{ left: `${left}%`, top: `${top - 50}%`, width: size * 1.6, animationDelay: `${i * 0.4}s` }}>
-              <PackShot kind={k} tone={tone} className="w-full opacity-90" />
-            </div>
-          ))}
-        </div>
-
-        <div className="container-x relative z-10 flex flex-col items-center justify-between gap-4 border-t border-paper/10 py-6 text-xs text-paper/55 md:flex-row">
-          <p>© {new Date().getFullYear()} Petti Packaging · An MBA entrepreneurship concept · Prices indicative</p>
-          <div className="flex flex-wrap items-center justify-center gap-5">
-            <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> SSL secure checkout</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> Secure UPI & card payments</span>
-            <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5" /> Data protection & privacy</span>
-          </div>
-          <div className="flex gap-1.5">
-            {['UPI', 'VISA', 'RuPay', 'Mastercard'].map((p) => (
-              <span key={p} className="rounded bg-paper px-2 py-1 text-[10px] font-bold text-ink">{p}</span>
-            ))}
+        <div className="border-t border-ink/10">
+          <div className="container-x py-8 text-[15px]">
+            Copyright © {new Date().getFullYear()} <Link to="/" className={u}>Petti</Link>. An MBA entrepreneurship concept · Prices indicative
           </div>
         </div>
       </footer>
@@ -110,9 +91,9 @@ export default function Footer() {
         target="_blank"
         rel="noreferrer"
         aria-label="Chat with us on WhatsApp"
-        className="no-print fixed bottom-5 left-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-clay text-white shadow-lg shadow-clay/30 transition hover:scale-105"
+        className="no-print fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#4CD964] text-white shadow-lg ring-4 ring-white transition hover:scale-105"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-7 w-7" />
       </a>
     </>
   );
